@@ -29,7 +29,7 @@
 <br />
 <p align="center">
   <a href="https://github.com/AvantgardeBlockchainSolutions/signum-dataFeed">
-    <img src="/public/Tellor_TRB.svg" alt="Logo" width="80" height="80">
+    <img src="/public/favicon.jpg" alt="Logo" width="80" height="80">
   </a>
 
   <h2 align="center">Signum Data Feed</h2>
