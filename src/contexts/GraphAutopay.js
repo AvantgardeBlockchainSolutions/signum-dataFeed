@@ -1,38 +1,8 @@
 import React, { useState, createContext, useEffect } from 'react'
-//The Graph
-import { ApolloClient, InMemoryCache, useQuery } from '@apollo/client'
-//Utils
-import {
-  autopayQuery,
-  divaPayQuery,
-  divaPayAdaptorQuery,
-} from '../utils/queries'
 import { decodingAutopayMiddleware, sortDataByProperty } from '../utils/helpers'
 //Sort
 
 export const GraphAutopayContext = createContext()
-
-//ApolloClients
-
-const clientPulsechain = new ApolloClient({
-  uri: 'https://api.studio.thegraph.com/query/33329/tellor-autopay-amoy-graph/version/latest',
-  cache: new InMemoryCache(),
-})
-
-const clientAmoy = new ApolloClient({
-  uri: 'https://api.studio.thegraph.com/query/33329/tellor-autopay-amoy-graph/version/latest',
-  cache: new InMemoryCache(),
-})
-
-const clientMainnet = new ApolloClient({
-  uri: 'https://api.studio.thegraph.com/query/33329/tellor-autopay-ethereum-graph/version/latest',
-  cache: new InMemoryCache(),
-})
-
-const clientSepolia = new ApolloClient({
-  uri: 'https://api.studio.thegraph.com/query/33329/tellor-autopay-sepolia/v0.0.5',
-  cache: new InMemoryCache(),
-})
 
 const GraphAutopay = ({ children }) => {
   //Component State
