@@ -4,7 +4,7 @@ import { queryDataParsers } from './queryDataParsers'
 //Globals
 const web3 = new Web3(window.ethereum)
 
-const BN = require('bn.js');
+const BN = require('bn.js')
 
 const tellorAddressPulsechain = '0x113c82608A84bD47eE90a7A498b2663f3A7B977C'
 
@@ -46,7 +46,10 @@ export const truncateAddr = (addr) => {
 
 export const getAssetBalances = async (web3, address, chainId) => {
   //Instantiating Contracts
-  const trbContractPulsechain = new web3.eth.Contract(minABI, tellorAddressPulsechain)
+  const trbContractPulsechain = new web3.eth.Contract(
+    minABI,
+    tellorAddressPulsechain
+  )
   //Function Globals
   let chainMainTokenBalance
   let trbBalance
@@ -86,119 +89,139 @@ export const sortDataByProperty = (prop, arr) => {
 
 export const decodingAutopayMiddleware = (autopayEvents) => {
   try {
-
-  //console.log(autopayEvents)
-  let decoded = autopayEvents.map((event) => {
-    let queryDataPartial
-    let queryData
-    let finalQueryData
-    if (event.divaPayQuery || event.divaPayAdaptorQuery) {
-      if (event.referenceAsset !== undefined) {
-        event.decodedValue = event.referenceAsset;
-      } else {
-        event.decodedValue = '0';
-        console.error("referenceAsset is missing for event:", event);
+    //console.log(autopayEvents)
+    let decoded = autopayEvents.map((event) => {
+      let queryDataPartial
+      let queryData
+      let finalQueryData
+      if (event.divaPayQuery || event.divaPayAdaptorQuery) {
+        if (event.referenceAsset !== undefined) {
+          event.decodedValue = event.referenceAsset
+        } else {
+          event.decodedValue = '0'
+          console.error('referenceAsset is missing for event:', event)
+        }
       }
-    }
-  
-    event.interval = event._interval ? `${(event._interval / 60 / 60)} hour(s)  ` : 'One-Time Tip'
-    //console.log(event._interval)
-    event.tip = event._reward ? web3.utils.fromWei(event._reward.toString() ?? '0') + ' SRB' : web3.utils.fromWei(event._amount?.toString()  ?? '0').slice(0,6) + ' SRB' 
-    event.tips = event.tip
-    event.balance = event._balance ? web3.utils.fromWei(event._balance.toString() ?? '0').slice(0,7) + ' SRB' : '-'
-    event.multipliedValue = event.amount ? (Number(event.amount).toFixed(7))+ (event.settlementFee * event.collateralBalanceGross) +  event.tippingToken: '0';    //console.log(event.event.tippingToken);
-    event.startTime = getDate(event._startTime)
-    event.window = event._window
-    event.symbols = event._queryData
-    event.symbol = ''
-    event.floor = event.floor
-    event.expiryTime = getDate(event.expiryTime)
-    if (event.collateralToken){
-      event.symbol = event.collateralToken.symbol
-    }
-  
-    if (event._queryData && event._queryData.length <= 104) {
-      try {queryData = JSON.parse(hex2a(event._queryData))
-      event.queryDataObj = queryData
-      queryDataParsers[queryData?.type || queryData?.Type || 'Default'](event)
-      } catch {
-        event.queryDataObj='0x'
-      }
-    } 
-    if (event._queryData && event._queryData.length > 104) {
-      queryDataPartial = web3.eth.abi.decodeParameters(
-        ['string', 'bytes'],
-        event._queryData
-        
-      )
-      switch (queryDataPartial[0]) {
-        
-        case 'LegacyRequest':
-          event.decodedValue = parseInt(Number(queryDataPartial[1]), 10)
-          queryDataParsers[queryDataPartial[0] || 'Default'](event)
-          break
-        case 'SpotPrice':
-          finalQueryData = web3.eth.abi.decodeParameters(
-            ['string', 'string'],
-            queryDataPartial[1]
-          )
-          event.decodedValue = `${finalQueryData[0].toUpperCase()}/${finalQueryData[1].toUpperCase()}`
-          break
 
-        case 'MimicryNFTMarketIndex':
-          finalQueryData = web3.eth.abi.decodeParameters(
-            ['string', 'string'],
-            queryDataPartial[1]
+      event.interval = event._interval
+        ? `${event._interval / 60 / 60} hour(s)  `
+        : 'One-Time Tip'
+      //console.log(event._interval)
+      event.tip = event._reward
+        ? web3.utils.fromWei(event._reward.toString() ?? '0') + ' SRB'
+        : web3.utils.fromWei(event._amount?.toString() ?? '0').slice(0, 6) +
+          ' SRB'
+      event.tips = event.tip
+      event.balance = event._balance
+        ? web3.utils.fromWei(event._balance.toString() ?? '0').slice(0, 7) +
+          ' SRB'
+        : '-'
+      event.multipliedValue = event.amount
+        ? Number(event.amount).toFixed(7) +
+          event.settlementFee * event.collateralBalanceGross +
+          event.tippingToken
+        : '0' //console.log(event.event.tippingToken);
+      event.startTime = getDate(event._startTime)
+      event.window = event._window
+      event.symbols = event._queryData
+      event.symbol = ''
+      event.floor = event.floor
+      event.expiryTime = getDate(event.expiryTime)
+      if (event.collateralToken) {
+        event.symbol = event.collateralToken.symbol
+      }
+
+      if (event._queryData && event._queryData.length <= 104) {
+        try {
+          queryData = JSON.parse(hex2a(event._queryData))
+          event.queryDataObj = queryData
+          queryDataParsers[queryData?.type || queryData?.Type || 'Default'](
+            event
           )
-          event.decodedValue = `MIMICRY_NFTINDX ${finalQueryData[0].toUpperCase()}/${finalQueryData[1].toUpperCase()}`
-          break
-        case 'MimicryMacroMarketMashup':
-          finalQueryData = web3.eth.abi.decodeParameters(
-            ['string', 'string', 'tuple(string, address)[]','(string, string, address)[]'],
-            queryDataPartial[1]
-          )
-          event.decodedValue = `MIMICRY_NFTMASH (${finalQueryData[3][0][1].toUpperCase()})`
-          break
-        case 'MimicryCollectionStat':
-          finalQueryData = web3.eth.abi.decodeParameters(
-            ['string', 'string'],
-            queryDataPartial[1]
-          )
-          event.decodedValue = `Mimicry NFT STAT ${finalQueryData[0].toUpperCase()}/${finalQueryData[1].toUpperCase()}`
-          break
-        case 'DivaPool':
+        } catch {
+          event.queryDataObj = '0x'
+        }
+      }
+      if (event._queryData && event._queryData.length > 104) {
+        queryDataPartial = web3.eth.abi.decodeParameters(
+          ['string', 'bytes'],
+          event._queryData
+        )
+        switch (queryDataPartial[0]) {
+          case 'LegacyRequest':
+            event.decodedValue = parseInt(Number(queryDataPartial[1]), 10)
+            queryDataParsers[queryDataPartial[0] || 'Default'](event)
+            break
+          case 'SpotPrice':
+            finalQueryData = web3.eth.abi.decodeParameters(
+              ['string', 'string'],
+              queryDataPartial[1]
+            )
+            event.decodedValue = `${finalQueryData[0].toUpperCase()}/${finalQueryData[1].toUpperCase()}`
+            break
+
+          case 'MimicryNFTMarketIndex':
+            finalQueryData = web3.eth.abi.decodeParameters(
+              ['string', 'string'],
+              queryDataPartial[1]
+            )
+            event.decodedValue = `MIMICRY_NFTINDX ${finalQueryData[0].toUpperCase()}/${finalQueryData[1].toUpperCase()}`
+            break
+          case 'MimicryMacroMarketMashup':
+            finalQueryData = web3.eth.abi.decodeParameters(
+              [
+                'string',
+                'string',
+                'tuple(string, address)[]',
+                '(string, string, address)[]',
+              ],
+              queryDataPartial[1]
+            )
+            event.decodedValue = `MIMICRY_NFTMASH (${finalQueryData[3][0][1].toUpperCase()})`
+            break
+          case 'MimicryCollectionStat':
+            finalQueryData = web3.eth.abi.decodeParameters(
+              ['string', 'string'],
+              queryDataPartial[1]
+            )
+            event.decodedValue = `Mimicry NFT STAT ${finalQueryData[0].toUpperCase()}/${finalQueryData[1].toUpperCase()}`
+            break
+          case 'DivaPool':
             finalQueryData = queryDataPartial[1].data.pools[0]
             event.queryDataObj = finalQueryData
             event.decodedValue = finalQueryData.proposedFinalReferenceValue
             event.pool = {
-              id: finalQueryData.pool.id.toUpperCase()
+              id: finalQueryData.pool.id.toUpperCase(),
             }
             break
-        case 'DivaFeeRecipients':
-          finalQueryData = queryDataPartial[1].data.feeRecipients[0]
-          event.queryDataObj = finalQueryData
-          event.decodedValue = finalQueryData.collateralTokens
-          event.feeRecipient = {
-            id: finalQueryData.feeRecipient.id.toUpperCase()
-          }
-          break
-        case 'EVMCall':
-              try {
-                // Log the raw data to console for inspection
-                //console.log("Raw EVMCall data:", queryDataPartial[1]);
+          case 'DivaFeeRecipients':
+            finalQueryData = queryDataPartial[1].data.feeRecipients[0]
+            event.queryDataObj = finalQueryData
+            event.decodedValue = finalQueryData.collateralTokens
+            event.feeRecipient = {
+              id: finalQueryData.feeRecipient.id.toUpperCase(),
+            }
+            break
+          case 'EVMCall':
+            try {
+              // Log the raw data to console for inspection
+              //console.log("Raw EVMCall data:", queryDataPartial[1]);
 
-                // Attempt to decode the transaction
-                finalQueryData = web3.eth.abi.decodeParameters(['uint'], queryDataPartial[1]);
-                event.decodedValue = `EVMCall ${finalQueryData[0]}`;
-              } catch (error) {
-                //console.error("Error decoding EVMCall data:", error, "Raw data:", queryDataPartial[1]);
-                // Optionally, set a flag or a specific value to indicate a decoding error
-                event.decodedValue = "Decoding Error";
-                // Continue to the next transaction without throwing the error
-                return event;
-  }
-  return event;
-        /*case 'GasPriceOracle':
+              // Attempt to decode the transaction
+              finalQueryData = web3.eth.abi.decodeParameters(
+                ['uint'],
+                queryDataPartial[1]
+              )
+              event.decodedValue = `EVMCall ${finalQueryData[0]}`
+            } catch (error) {
+              //console.error("Error decoding EVMCall data:", error, "Raw data:", queryDataPartial[1]);
+              // Optionally, set a flag or a specific value to indicate a decoding error
+              event.decodedValue = 'Decoding Error'
+              // Continue to the next transaction without throwing the error
+              return event
+            }
+            return event
+          /*case 'GasPriceOracle':
           finalQueryData = web3.eth.abi.decodeParameters(
             ['string', 'string'],
             queryDataPartial[1]
@@ -206,46 +229,42 @@ export const decodingAutopayMiddleware = (autopayEvents) => {
           event.queryDataObj = finalQueryData
           queryDataParsers['SpotPriceProper' || 'Default'](event)
           break*/
-        case 'CurrencyExchangeRate':
+          case 'CurrencyExchangeRate':
             finalQueryData = web3.eth.abi.decodeParameters(
               ['string', 'string'],
               queryDataPartial[1]
             )
             event.decodedValue = `${finalQueryData[0].toUpperCase()}/${finalQueryData[1].toUpperCase()}`
             break
-        //These will not be shown: https://github.com/tellor-io/dataSpecs/blob/main/types/NumericApiResponse.md
-        default:
-          event.decodedValue = 'NumericApiResponse'
-          return event
+          //These will not be shown: https://github.com/tellor-io/dataSpecs/blob/main/types/NumericApiResponse.md
+          default:
+            event.decodedValue = 'NumericApiResponse'
+            return event
+        }
       }
-    }
-    return event
-  })
+      return event
+    })
 
-
-
-
-  let filtered = [];
-  decoded.map((event) => {
-    if(event.decodedValue === 'NumericApiResponse'){
-      return;
-    } else {
-      filtered.push(event);
-    }
-  })
-  //console.log('filtered', filtered);
-  return filtered;
-} catch (error) {
-  console.error("Error decoding data:", error);
-  // Handle the error appropriately
-  // You might want to return an empty array or a default value depending on your application's needs
-  return [];
+    let filtered = []
+    decoded.map((event) => {
+      if (event.decodedValue === 'NumericApiResponse') {
+        return
+      } else {
+        filtered.push(event)
+      }
+    })
+    //console.log('filtered', filtered);
+    return filtered
+  } catch (error) {
+    console.error('Error decoding data:', error)
+    // Handle the error appropriately
+    // You might want to return an empty array or a default value depending on your application's needs
+    return []
+  }
 }
-}
-
 
 export const getCollateralTokenSymbol = (token) => {
-  return token.collateralToken.symbol;
+  return token.collateralToken.symbol
 }
 
 export const decodingMiddleware = (reportEvents) => {
@@ -264,69 +283,71 @@ export const decodingMiddleware = (reportEvents) => {
       queryDataPartial = web3.eth.abi.decodeParameters(
         ['string', 'bytes'],
         event._queryData
-      );
-    
-    if (event._queryData && event._queryData.length <= 104) {
-      try {queryData = JSON.parse(hex2a(event._queryData))
-      event.queryDataObj = queryData
-      queryDataParsers[queryData?.type || queryData?.Type || 'Default'](event)
-      } catch {
-        event.queryDataObj='0x'
-      }
-    } else if (event._queryData && event._queryData.length > 104) {
-      queryDataPartial = web3.eth.abi.decodeParameters(
-        ['string', 'bytes'],
-        event._queryData
       )
-      switch (queryDataPartial[0]) {
-        case 'LegacyRequest':
-          event.queryId = parseInt(Number(queryDataPartial[1]), 10)
-          queryDataParsers[queryDataPartial[0] || 'Default'](event)
-          break
-        case 'AmpleforthCustomSpotPrice':
-          finalQueryData = web3.eth.abi.decodeParameters(
-            ['string', 'string'],
-            queryDataPartial[1]
+
+      if (event._queryData && event._queryData.length <= 104) {
+        try {
+          queryData = JSON.parse(hex2a(event._queryData))
+          event.queryDataObj = queryData
+          queryDataParsers[queryData?.type || queryData?.Type || 'Default'](
+            event
           )
-          event.queryDataObj = finalQueryData
-          queryDataParsers['AmpleforthCustomSpotPrice' || 'Default'](event)
-          break
-        case 'StringQuery':
-          finalQueryData = web3.eth.abi.decodeParameters(
-            ['string'],
-            queryDataPartial[1]
-          )
-        
-          // Assign the decoded string to queryDataObj
-          event.queryDataObj = finalQueryData
-          queryDataParsers['StringQuery' || 'Default'](event)
-          break
-        case 'FileCID':
+        } catch {
+          event.queryDataObj = '0x'
+        }
+      } else if (event._queryData && event._queryData.length > 104) {
+        queryDataPartial = web3.eth.abi.decodeParameters(
+          ['string', 'bytes'],
+          event._queryData
+        )
+        switch (queryDataPartial[0]) {
+          case 'LegacyRequest':
+            event.queryId = parseInt(Number(queryDataPartial[1]), 10)
+            queryDataParsers[queryDataPartial[0] || 'Default'](event)
+            break
+          case 'AmpleforthCustomSpotPrice':
+            finalQueryData = web3.eth.abi.decodeParameters(
+              ['string', 'string'],
+              queryDataPartial[1]
+            )
+            event.queryDataObj = finalQueryData
+            queryDataParsers['AmpleforthCustomSpotPrice' || 'Default'](event)
+            break
+          case 'StringQuery':
+            finalQueryData = web3.eth.abi.decodeParameters(
+              ['string'],
+              queryDataPartial[1]
+            )
+
+            // Assign the decoded string to queryDataObj
+            event.queryDataObj = finalQueryData
+            queryDataParsers['StringQuery' || 'Default'](event)
+            break
+          case 'FileCID':
             finalQueryData = web3.eth.abi.decodeParameters(
               ['string'],
               queryDataPartial[1]
             )
             event.queryDataObj = finalQueryData
             queryDataParsers['FileCID' || 'Default'](event)
-          break
-        case 'SpotPrice':
-
-          finalQueryData = web3.eth.abi.decodeParameters(
-            ['string', 'string'],
-            queryDataPartial[1]
-          )
-          event.queryDataObj = finalQueryData
-          queryDataParsers['SpotPriceProper' || 'Default'](event)
-          break
-        case 'EVMBalanceCurrent':
-          finalQueryData = web3.eth.abi.decodeParameters(
-            ['uint256', 'address'],
-            queryDataPartial[1]
-          )
-          console.log(finalQueryData)
-          event.queryDataObj = finalQueryData
-          queryDataParsers['EVMBalanceCurrent' || 'Default'](event)
-          break
+            break
+          case 'SpotPrice':
+            finalQueryData = web3.eth.abi.decodeParameters(
+              ['string', 'string'],
+              queryDataPartial[1]
+            )
+            event.queryDataObj = finalQueryData
+            queryDataParsers['SpotPriceProper' || 'Default'](event)
+            break
+          case 'EVMBalanceCurrent':
+            finalQueryData = web3.eth.abi.decodeParameters(
+              ['uint256', 'address'],
+              queryDataPartial[1]
+            )
+            console.log(finalQueryData)
+            event.queryDataObj = finalQueryData
+            queryDataParsers['EVMBalanceCurrent' || 'Default'](event)
+            break
           case 'BTCBalanceCurrent':
             finalQueryData = web3.eth.abi.decodeParameters(
               ['uint256', 'address'],
@@ -336,40 +357,45 @@ export const decodingMiddleware = (reportEvents) => {
             event.queryDataObj = finalQueryData
             queryDataParsers['BTCBalanceCurrent' || 'Default'](event)
             break
-        case 'DivaPay':
-          finalQueryData = web3.eth.abi.decodeParameters(
-            ['string'],
-            queryDataPartial[1]
-          )
-          event.decodedValue = `DivaPay ${finalQueryData[0]}`
-          break
-      case 'MimicryNFTMarketIndex':
-        finalQueryData = web3.eth.abi.decodeParameters(
-          ['string', 'string'],
-          queryDataPartial[1]
-        )
-        event.queryDataObj = finalQueryData
-        queryDataParsers['MimicryNFTMarketIndex' || 'Default'](event)
-          break
-      case 'MimicryMacroMarketMashup':
-        finalQueryData = web3.eth.abi.decodeParameters(
-          ['string', 'string', 'tuple(string, address)[]','tuple(string, string, address)[]'],
-             queryDataPartial[1]
-          )
-        event.queryDataObj = finalQueryData
-        queryDataParsers['MimicryMacroMarketMashup' || 'Default'](event)
-              break
-      case 'EVMCall':
-        finalQueryData = web3.eth.abi.decodeParameters(
-          ['uint256', 'address', 'bytes'],
-             queryDataPartial[1]
-          )
-          //console.log("EVMCall decoded data:", finalQueryData); // This line logs the decoded data
+          case 'DivaPay':
+            finalQueryData = web3.eth.abi.decodeParameters(
+              ['string'],
+              queryDataPartial[1]
+            )
+            event.decodedValue = `DivaPay ${finalQueryData[0]}`
+            break
+          case 'MimicryNFTMarketIndex':
+            finalQueryData = web3.eth.abi.decodeParameters(
+              ['string', 'string'],
+              queryDataPartial[1]
+            )
+            event.queryDataObj = finalQueryData
+            queryDataParsers['MimicryNFTMarketIndex' || 'Default'](event)
+            break
+          case 'MimicryMacroMarketMashup':
+            finalQueryData = web3.eth.abi.decodeParameters(
+              [
+                'string',
+                'string',
+                'tuple(string, address)[]',
+                'tuple(string, string, address)[]',
+              ],
+              queryDataPartial[1]
+            )
+            event.queryDataObj = finalQueryData
+            queryDataParsers['MimicryMacroMarketMashup' || 'Default'](event)
+            break
+          case 'EVMCall':
+            finalQueryData = web3.eth.abi.decodeParameters(
+              ['uint256', 'address', 'bytes'],
+              queryDataPartial[1]
+            )
+            //console.log("EVMCall decoded data:", finalQueryData); // This line logs the decoded data
 
-        event.queryDataObj = finalQueryData
-        queryDataParsers['EVMCall' || 'Default'](event)
-              break
-      /*case 'DivaPool':
+            event.queryDataObj = finalQueryData
+            queryDataParsers['EVMCall' || 'Default'](event)
+            break
+          /*case 'DivaPool':
         finalQueryData = web3.eth.abi.decodeParameters(
           ['string', 'string', 'tuple(string, address)[]','tuple(string, string, address)[]'],
             queryDataPartial[1]
@@ -377,14 +403,14 @@ export const decodingMiddleware = (reportEvents) => {
         event.queryDataObj = finalQueryData
         queryDataParsers['DivaPool' || 'Default'](event)
               break*/
-      /*case 'GasPriceOracle':
+          /*case 'GasPriceOracle':
         finalQueryData = web3.eth.abi.decodeParameters(
           ['string', 'string'],
           queryDataPartial[1]
         )
         event.decodedValue = `${finalQueryData[0].toUpperCase()}/${finalQueryData[1].toUpperCase()}`
-            break*/ 
-        case 'CurrencyExchangeRate':
+            break*/
+          case 'CurrencyExchangeRate':
             finalQueryData = web3.eth.abi.decodeParameters(
               ['string', 'string'],
               queryDataPartial[1]
@@ -392,55 +418,47 @@ export const decodingMiddleware = (reportEvents) => {
             event.queryDataObj = finalQueryData
             queryDataParsers['EUR/USD' || 'Default'](event)
             break
-        case 'TellorRNG':
-          finalQueryData = web3.eth.abi.decodeParameters(
-            ['uint'],
-            queryDataPartial[1]
-          )
-          temp = web3.eth.abi.decodeParameters(
-            ['uint256'],
-            event._value
-          )
-          event.feedType = 'TellorRNG'
-          event.decodedValueName = `TellorRNG`
-          let t1  = `[${temp[0]}]`
-          event.decodedValue = t1.slice(1,7) + "..."
-          return event
-        case 'Snapshot':
-          finalQueryData = web3.eth.abi.decodeParameters(
-            ['string'],
-            queryDataPartial[1]
-          )
-          event.snapshotProposalId = parseInt(finalQueryData[0])
-          temp = web3.eth.abi.decodeParameters(
-            ['bool'],
-            event._value
-          )
-          event.feedType = 'Snapshot'
-          event.decodedValueName = `Snap: ${event.snapshotProposalId}`
-          event.decodedValue = `[${temp[0]}]`
-          return event
-        // queryDataParsers['Snapshot' || 'Default'](event)
-        // break
-        default:
-          queryDataParsers['Default'](event)
-          return event
+          case 'TellorRNG':
+            finalQueryData = web3.eth.abi.decodeParameters(
+              ['uint'],
+              queryDataPartial[1]
+            )
+            temp = web3.eth.abi.decodeParameters(['uint256'], event._value)
+            event.feedType = 'TellorRNG'
+            event.decodedValueName = `TellorRNG`
+            let t1 = `[${temp[0]}]`
+            event.decodedValue = t1.slice(1, 7) + '...'
+            return event
+          case 'Snapshot':
+            finalQueryData = web3.eth.abi.decodeParameters(
+              ['string'],
+              queryDataPartial[1]
+            )
+            event.snapshotProposalId = parseInt(finalQueryData[0])
+            temp = web3.eth.abi.decodeParameters(['bool'], event._value)
+            event.feedType = 'Snapshot'
+            event.decodedValueName = `Snap: ${event.snapshotProposalId}`
+            event.decodedValue = `[${temp[0]}]`
+            return event
+          // queryDataParsers['Snapshot' || 'Default'](event)
+          // break
+          default:
+            queryDataParsers['Default'](event)
+            return event
+        }
       }
+    } catch (error) {
+      console.error('Error decoding data for event:', event, error)
+      // Handle the error, e.g., by setting a default error message or value
+      event.decodedValue = 'Decoding Error'
+      // Optionally, you can add more error-specific handling here
     }
+    return event
+  })
 
-  } catch (error) {
-    console.error("Error decoding data for event:", event, error);
-    // Handle the error, e.g., by setting a default error message or value
-    event.decodedValue = "Decoding Error";
-    // Optionally, you can add more error-specific handling here
-  }
-  return event;
-});
+  // Filter out or keep events with decoding errors based on your needs
+  // For example, to exclude them:
+  // let filteredDecoded = decoded.filter(event => event.decodedValue !== "Decoding Error");
 
-// Filter out or keep events with decoding errors based on your needs
-// For example, to exclude them:
-// let filteredDecoded = decoded.filter(event => event.decodedValue !== "Decoding Error");
-
-return decoded; // Or return filteredDecoded if you filtered the list
+  return decoded // Or return filteredDecoded if you filtered the list
 }
- 

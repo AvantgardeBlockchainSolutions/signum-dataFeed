@@ -23,10 +23,10 @@ function Table({ data, allData, setFiltering }) {
   const [reportedChains, setReportedChains] = useState(null)
   const [reportedReporters, setReportedReporters] = useState(null)
   const [reportedDates, setReportedDates] = useState(null)
-  const [symbolSearchTerm, setSymbolSearchTerm] = useState("");
-  const [reporterSearchTerm, setReporterSearchTerm] = useState("");
-  const [startDateSearchTerm, setStartDateSearchTerm] = useState("");
-  const [endDateSearchTerm, setEndDateSearchTerm] = useState("");
+  const [symbolSearchTerm, setSymbolSearchTerm] = useState('')
+  const [reporterSearchTerm, setReporterSearchTerm] = useState('')
+  const [startDateSearchTerm, setStartDateSearchTerm] = useState('')
+  const [endDateSearchTerm, setEndDateSearchTerm] = useState('')
   //
   const [allFilters, setAllFilters] = useState([])
   const [symbolFilters, setSymbolFilters] = useState([])
@@ -43,14 +43,13 @@ function Table({ data, allData, setFiltering }) {
 
   //useEffect for tableData
   useEffect(() => {
-    if (!data) return;
-    setTableData(prevData => {
-      const newData = data.slice(prevData.length);
+    if (!data) return
+    setTableData((prevData) => {
+      const newData = data.slice(prevData.length)
       if (JSON.stringify(newData) !== JSON.stringify([])) {
         return [...prevData, ...newData]
-        
       }
-      return prevData;
+      return prevData
     })
   }, [data])
 
@@ -76,7 +75,10 @@ function Table({ data, allData, setFiltering }) {
       if (!reporters.includes(event.decodedReporter) && event.decodedReporter) {
         reporters.push(event.decodedReporter)
       }
-      if (!dates.includes(event.decodedTime.split(',')[0].trim()) && event.decodedTime) {
+      if (
+        !dates.includes(event.decodedTime.split(',')[0].trim()) &&
+        event.decodedTime
+      ) {
         dates.push(event.decodedTime.split(',')[0].trim())
       }
     })
@@ -201,37 +203,63 @@ function Table({ data, allData, setFiltering }) {
     }
   }
   const handleFilterApply = () => {
-    let filteredData = allData.decodedData.filter(event => {
-      const symbolMatch = symbolFilters.length === 0 || symbolFilters.includes(event.decodedValueName);
-      const chainMatch = chainFilters.length === 0 || chainFilters.includes(event.chain);
-      const reporterMatch = reporterFilters.length === 0 || reporterFilters.includes(event.decodedReporter);
-      
-      let startDate = new Date(startDateSearchTerm);
-      let endDate = new Date(endDateSearchTerm);
-      let eventDate = new Date(event.decodedTime.split(',')[0].trim().split('/').reverse().join('-'));
+    let filteredData = allData.decodedData.filter((event) => {
+      const symbolMatch =
+        symbolFilters.length === 0 ||
+        symbolFilters.includes(event.decodedValueName)
+      const chainMatch =
+        chainFilters.length === 0 || chainFilters.includes(event.chain)
+      const reporterMatch =
+        reporterFilters.length === 0 ||
+        reporterFilters.includes(event.decodedReporter)
 
-      const dateMatch = startDateSearchTerm && endDateSearchTerm ? (eventDate >= startDate && eventDate <= endDate) : dateFilters.length === 0 || dateFilters.some(filterDate => event.decodedTime.startsWith(filterDate));
-  
-      return symbolMatch && chainMatch && reporterMatch && dateMatch;
-    });
-  
+      let startDate = new Date(startDateSearchTerm)
+      let endDate = new Date(endDateSearchTerm)
+      let eventDate = new Date(
+        event.decodedTime.split(',')[0].trim().split('/').reverse().join('-')
+      )
+
+      const dateMatch =
+        startDateSearchTerm && endDateSearchTerm
+          ? eventDate >= startDate && eventDate <= endDate
+          : dateFilters.length === 0 ||
+            dateFilters.some((filterDate) =>
+              event.decodedTime.startsWith(filterDate)
+            )
+
+      return symbolMatch && chainMatch && reporterMatch && dateMatch
+    })
+
     // Check if any filters are applied
-    const areFiltersApplied = symbolFilters.length > 0 || chainFilters.length > 0 || reporterFilters.length > 0 || dateFilters.length > 0 || (startDateSearchTerm && endDateSearchTerm);
-  
+    const areFiltersApplied =
+      symbolFilters.length > 0 ||
+      chainFilters.length > 0 ||
+      reporterFilters.length > 0 ||
+      dateFilters.length > 0 ||
+      (startDateSearchTerm && endDateSearchTerm)
+
     // If filters are applied, show all matching data, otherwise limit to first 6 items
     if (areFiltersApplied) {
-      setTableData(filteredData); // Show all filtered items
+      setTableData(filteredData) // Show all filtered items
     } else {
-      setTableData(filteredData.slice(0, 6)); // Limit to first 6 items for initial load
+      setTableData(filteredData.slice(0, 6)) // Limit to first 6 items for initial load
     }
-  
-    setFiltering(filteredData.length > 0);
-  };
+
+    setFiltering(filteredData.length > 0)
+  }
 
   // Effect hook to re-apply filters when any filter changes or the initial dataset updates
   useEffect(() => {
-    handleFilterApply();
-  }, [symbolFilters, chainFilters, reporterFilters, dateFilters, allData, startDateSearchTerm, endDateSearchTerm]);
+    handleFilterApply()
+  }, [
+    symbolFilters,
+    chainFilters,
+    reporterFilters,
+    dateFilters,
+    allData,
+    startDateSearchTerm,
+    endDateSearchTerm,
+  ])
 
   const handleFilterClear = (filterType) => {
     let cleared
@@ -260,18 +288,18 @@ function Table({ data, allData, setFiltering }) {
         handleFilterApply()
         setReporterFilters([])
         break
-        case 'date':
-          cleared = allFilters.filter(
-            (filters) => filters.filterType !== filterType
-          )
-          setAllFilters(cleared)
-          setStartDateSearchTerm("") // Clear the start date search term
-          setEndDateSearchTerm("") // Clear the end date search term
-          handleFilterApply()
-          setDateFilters([])
-          break
-        default:
-          return
+      case 'date':
+        cleared = allFilters.filter(
+          (filters) => filters.filterType !== filterType
+        )
+        setAllFilters(cleared)
+        setStartDateSearchTerm('') // Clear the start date search term
+        setEndDateSearchTerm('') // Clear the end date search term
+        handleFilterApply()
+        setDateFilters([])
+        break
+      default:
+        return
     }
   }
   const handleRowClick = (txnLink) => {
@@ -311,38 +339,43 @@ function Table({ data, allData, setFiltering }) {
             >
               <h3>filter by symbol</h3>
               <input
-  type="text"
-  placeholder="Search..."
-  value={symbolSearchTerm}
-  onChange={(e) => setSymbolSearchTerm(e.target.value)}
-/>
+                type="text"
+                placeholder="Search..."
+                value={symbolSearchTerm}
+                onChange={(e) => setSymbolSearchTerm(e.target.value)}
+              />
               <div className="DropdownResults">
                 {reportedSymbols &&
-                  reportedSymbols.filter((symbol) => symbol.toLowerCase().includes(symbolSearchTerm.toLowerCase()))
-                  .map((symbol) => (
-                    <div
-                      key={symbol}
-                      className={
-                        mode.mode === 'dark'
-                          ? 'DropdownDataRow'
-                          : 'DropdownDataRowDark'
-                      }
-                      onClick={() => handleFilter('symbol', symbol)}
-                    >
-                      {symbolFilters.includes(symbol) ? (
-                        <>
+                  reportedSymbols
+                    .filter((symbol) =>
+                      symbol
+                        .toLowerCase()
+                        .includes(symbolSearchTerm.toLowerCase())
+                    )
+                    .map((symbol) => (
+                      <div
+                        key={symbol}
+                        className={
+                          mode.mode === 'dark'
+                            ? 'DropdownDataRow'
+                            : 'DropdownDataRowDark'
+                        }
+                        onClick={() => handleFilter('symbol', symbol)}
+                      >
+                        {symbolFilters.includes(symbol) ? (
+                          <>
+                            <p>{symbol}</p>
+                            <Checked
+                              className={
+                                mode.mode === 'dark' ? '' : 'DropdownCheckDark'
+                              }
+                            />
+                          </>
+                        ) : (
                           <p>{symbol}</p>
-                          <Checked
-                            className={
-                              mode.mode === 'dark' ? '' : 'DropdownCheckDark'
-                            }
-                          />
-                        </>
-                      ) : (
-                        <p>{symbol}</p>
-                      )}
-                    </div>
-                  ))}
+                        )}
+                      </div>
+                    ))}
               </div>
               <div
                 className={
@@ -467,39 +500,43 @@ function Table({ data, allData, setFiltering }) {
             >
               <h3>filter by reporter</h3>
               <input
-  type="text"
-  placeholder="Search..."
-  value={reporterSearchTerm}
-  onChange={(e) => setReporterSearchTerm(e.target.value)}
-/>
+                type="text"
+                placeholder="Search..."
+                value={reporterSearchTerm}
+                onChange={(e) => setReporterSearchTerm(e.target.value)}
+              />
               <div className="DropdownResults">
                 {reportedReporters &&
-  reportedReporters
-  .filter((reporter) => reporter.toLowerCase().includes(reporterSearchTerm.toLowerCase()))
-    .map((reporter) => (
-                    <div
-                      key={reporter}
-                      className={
-                        mode.mode === 'dark'
-                          ? 'DropdownDataRow'
-                          : 'DropdownDataRowDark'
-                      }
-                      onClick={() => handleFilter('reporter', reporter)}
-                    >
-                      {reporterFilters.includes(reporter) ? (
-                        <>
+                  reportedReporters
+                    .filter((reporter) =>
+                      reporter
+                        .toLowerCase()
+                        .includes(reporterSearchTerm.toLowerCase())
+                    )
+                    .map((reporter) => (
+                      <div
+                        key={reporter}
+                        className={
+                          mode.mode === 'dark'
+                            ? 'DropdownDataRow'
+                            : 'DropdownDataRowDark'
+                        }
+                        onClick={() => handleFilter('reporter', reporter)}
+                      >
+                        {reporterFilters.includes(reporter) ? (
+                          <>
+                            <p>{truncateAddr(reporter)}</p>
+                            <Checked
+                              className={
+                                mode.mode === 'dark' ? '' : 'DropdownCheckDark'
+                              }
+                            />
+                          </>
+                        ) : (
                           <p>{truncateAddr(reporter)}</p>
-                          <Checked
-                            className={
-                              mode.mode === 'dark' ? '' : 'DropdownCheckDark'
-                            }
-                          />
-                        </>
-                      ) : (
-                        <p>{truncateAddr(reporter)}</p>
-                      )}
-                    </div>
-                  ))}
+                        )}
+                      </div>
+                    ))}
               </div>
               <div
                 className={
@@ -508,7 +545,6 @@ function Table({ data, allData, setFiltering }) {
                     : 'DropdownButtonsDark'
                 }
               >
-
                 <button
                   className={
                     mode.mode === 'dark' ? 'DropdownClear' : 'DropdownClearDark'
@@ -550,49 +586,56 @@ function Table({ data, allData, setFiltering }) {
               <h3>filter by date</h3>
               <p>Start</p>
               <input
-                 type="date"
-                 placeholder="Start Date..."
-                 value={startDateSearchTerm}
-                 onChange={(e) => setStartDateSearchTerm(e.target.value)}
-                 className="input-date" // Add this line
-
-               />
-                 <p>End</p>
+                type="date"
+                placeholder="Start Date..."
+                value={startDateSearchTerm}
+                onChange={(e) => setStartDateSearchTerm(e.target.value)}
+                className="input-date" // Add this line
+              />
+              <p>End</p>
               <input
-                 type="date"
-                 placeholder="End Date..."
-                 value={endDateSearchTerm}
-                 onChange={(e) => setEndDateSearchTerm(e.target.value)}
-                 className="input-date" // Add this line
-
-               />
+                type="date"
+                placeholder="End Date..."
+                value={endDateSearchTerm}
+                onChange={(e) => setEndDateSearchTerm(e.target.value)}
+                className="input-date" // Add this line
+              />
               <div className="DropdownResults">
                 {reportedDates &&
-                  reportedDates.filter((date) => date.toLowerCase().includes(startDateSearchTerm.toLowerCase()) || date.toLowerCase().includes(endDateSearchTerm.toLowerCase()))
-                  .map((date) => (
-                    <div
-                      key={date}
-                      className={
-                        mode.mode === 'dark'
-                          ? 'DropdownDataRow'
-                          : 'DropdownDataRowDark'
-                      }
-                      onClick={() => handleFilter('date', date)}
-                    >
-                      {dateFilters.includes(date) ? (
-                        <>
+                  reportedDates
+                    .filter(
+                      (date) =>
+                        date
+                          .toLowerCase()
+                          .includes(startDateSearchTerm.toLowerCase()) ||
+                        date
+                          .toLowerCase()
+                          .includes(endDateSearchTerm.toLowerCase())
+                    )
+                    .map((date) => (
+                      <div
+                        key={date}
+                        className={
+                          mode.mode === 'dark'
+                            ? 'DropdownDataRow'
+                            : 'DropdownDataRowDark'
+                        }
+                        onClick={() => handleFilter('date', date)}
+                      >
+                        {dateFilters.includes(date) ? (
+                          <>
+                            <p>{date}</p>
+                            <Checked
+                              className={
+                                mode.mode === 'dark' ? '' : 'DropdownCheckDark'
+                              }
+                            />
+                          </>
+                        ) : (
                           <p>{date}</p>
-                          <Checked
-                            className={
-                              mode.mode === 'dark' ? '' : 'DropdownCheckDark'
-                            }
-                          />
-                        </>
-                      ) : (
-                        <p>{date}</p>
-                      )}
-                    </div>
-                  ))}
+                        )}
+                      </div>
+                    ))}
               </div>
               <div
                 className={
@@ -601,7 +644,6 @@ function Table({ data, allData, setFiltering }) {
                     : 'DropdownButtonsDark'
                 }
               >
-
                 <button
                   className={
                     mode.mode === 'dark' ? 'DropdownClear' : 'DropdownClearDark'
@@ -617,9 +659,9 @@ function Table({ data, allData, setFiltering }) {
       </thead>
       <tbody>
         {tableData && tableData.length > 0 ? (
-          tableData.map((event) => (
+          tableData.map((event, i) => (
             <tr
-              key={event.id}
+              key={i}
               className={mode.mode === 'dark' ? 'TableBody' : 'TableBodyDark'}
               onClick={() => handleRowClick(event.txnLink)}
             >

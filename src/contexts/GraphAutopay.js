@@ -2,8 +2,12 @@ import React, { useState, createContext, useEffect } from 'react'
 //The Graph
 import { ApolloClient, InMemoryCache, useQuery } from '@apollo/client'
 //Utils
-import { autopayQuery, divaPayQuery, divaPayAdaptorQuery } from '../utils/queries'
-import { decodingAutopayMiddleware, sortDataByProperty  } from '../utils/helpers'
+import {
+  autopayQuery,
+  divaPayQuery,
+  divaPayAdaptorQuery,
+} from '../utils/queries'
+import { decodingAutopayMiddleware, sortDataByProperty } from '../utils/helpers'
 //Sort
 
 export const GraphAutopayContext = createContext()
@@ -30,173 +34,40 @@ const clientSepolia = new ApolloClient({
   cache: new InMemoryCache(),
 })
 
-
 const GraphAutopay = ({ children }) => {
   //Component State
-  const [autopayPulsechainData, setAutopayPulsechainData] = useState({})
-  const [autopayMainnetData, setAutopayMainnetData] = useState({})
-  const [autopayAmoyData, setAutopayAmoyData] = useState({})
-  const [autopaySepoliaData, setAutopaySepoliaData] = useState({})
   const [decodedData, setDecodedData] = useState([])
   const [allGraphData, setAllGraphData] = useState(null)
-  //Context State
-  //Pulsechain
-  const pulsechain = useQuery(autopayQuery, {
-    client: clientPulsechain,
-    fetchPolicy: 'network-only',
-    pollInterval: 5000,
-  })
 
-  //Eth mainnet
-  const mainnet = useQuery(autopayQuery, {
-    client: clientMainnet,
-    fetchPolicy: 'network-only',
-    pollInterval: 5000,
-  })
-  //Amoy
-  const amoy = useQuery(autopayQuery, {
-    client: clientAmoy,
-    fetchPolicy: 'network-only',
-    pollInterval: 5000,
-  })
-  //Sepolia
-  const sepolia = useQuery(autopayQuery, {
-    client: clientSepolia,
-    fetchPolicy: 'network-only',
-    pollInterval: 5000,
-  })
-  
-  //useEffects for listening to reponses
-  //from ApolloClient queries
-  
-  //Eth Mainnet
   useEffect(() => {
-    if (!mainnet) return
-    setAutopayMainnetData({
-      data: mainnet.data,
-      loading: mainnet.loading,
-      error: mainnet.error,
-    })
-    return () => {
-      setAutopayMainnetData({})
+    const fetchNewReports = async () => {
+      try {
+        const res = await fetch(`http://localhost:3001/tip-added`)
+        const data = await res.json()
+
+        const sorted = sortDataByProperty(
+          '_startTime',
+          data.map((event) => {
+            const updatedEvent = Object.assign({}, event, {
+              chain: 'Pulsechain',
+            })
+            updatedEvent.txnLink = `https://scan.9mm.pro/tx/${event.txnHash}`
+            return updatedEvent
+          })
+        )
+
+        setAllGraphData(sorted)
+      } catch (e) {
+        console.log(e)
+      }
     }
-  }, [mainnet.data, mainnet.loading, mainnet.error]) //eslint-disable-line*/
-    //Pulsechain
-  useEffect(() => {
-    if (!pulsechain) return
-    setAutopayPulsechainData({
-      data: pulsechain.data,
-      loading: pulsechain.loading,
-      error: pulsechain.error,
-    })
-    return () => {
-      setAutopayPulsechainData({})
-    }
-  }, [pulsechain.data, pulsechain.loading, pulsechain.error]) //eslint-disable-line*/
-    //Sepolia
-  useEffect(() => {
-    if (!sepolia) return
-    setAutopaySepoliaData({
-      data: sepolia.data,
-      loading: sepolia.loading,
-      error: sepolia.error,
-    })
-    return () => {
-      setAutopaySepoliaData({})
-    }
-  }, [sepolia.data, sepolia.loading, sepolia.error]) //eslint-disable-line*/
-  //Amoy
-  useEffect(() => {
-    if (!amoy) return
-    setAutopayAmoyData({
-      data: amoy.data,
-      loading: amoy.loading,
-      error: amoy.error,
-    })
-    return () => {
-      setAutopayAmoyData({})
-    }
-  }, [amoy.data, amoy.loading, amoy.error]) //eslint-disable-line
-  //useEffects for decoding autopay events
-  useEffect(() => {
-    if (
-      !autopayPulsechainData.data ||
-      !autopayMainnetData.data ||
-      !autopaySepoliaData.data ||
-      !autopayAmoyData.data 
-    )
-      return
-
-    let eventsArray = []
-
-    autopayAmoyData.data.dataFeedEntities.forEach((event) => {
-      const updatedEvent = Object.assign({}, event, { chain: 'Amoy Testnet' });
-      updatedEvent.txnLink = `https://amoy.polygonscan.com/tx/${event.txnHash}`;
-      eventsArray.push(updatedEvent);
-    });
-    
-    autopayAmoyData.data.tipAddedEntities.forEach((event) => {
-      const updatedEvent = Object.assign({}, event, { chain: 'Amoy Testnet' });
-      updatedEvent.txnLink = `https://amoy.polygonscan.com/tx/${event.txnHash}`;
-      eventsArray.push(updatedEvent);
-    });
-    
-    autopayMainnetData.data.dataFeedEntities.forEach((event) => {
-      const updatedEvent = Object.assign({}, event, { chain: 'Ethereum Mainnet' });
-      updatedEvent.txnLink = `https://etherscan.com/tx/${event.txnHash}`;
-      eventsArray.push(updatedEvent);
-    });
-    
-    autopayMainnetData.data.tipAddedEntities.forEach((event) => {
-      const updatedEvent = Object.assign({}, event, { chain: 'Ethereum Mainnet' });
-      updatedEvent.txnLink = `https://etherscan.com/tx/${event.txnHash}`;
-      eventsArray.push(updatedEvent);
-    });
-
-    autopayPulsechainData.data.dataFeedEntities.forEach((event) => {
-      const updatedEvent = Object.assign({}, event, { chain: 'Pulsechain' });
-      updatedEvent.txnLink = `https://scan.9mm.pro/tx/${event.txnHash}`;
-      eventsArray.push(updatedEvent);
-    });
-    
-    autopayPulsechainData.data.tipAddedEntities.forEach((event) => {
-      const updatedEvent = Object.assign({}, event, { chain: 'Pulsechain' });
-      updatedEvent.txnLink = `https://scan.9mm.pro/tx/${event.txnHash}`;
-      eventsArray.push(updatedEvent);
-    });
-    
-    autopaySepoliaData.data.dataFeedEntities.forEach((event) => {
-      const updatedEvent = Object.assign({}, event, { chain: 'Sepolia Testnet' });
-      updatedEvent.txnLink = `https://sepolia.etherscan.io/tx/${event.txnHash}`;
-      eventsArray.push(updatedEvent);
-    });
-    
-    autopaySepoliaData.data.tipAddedEntities.forEach((event) => {
-      const updatedEvent = Object.assign({}, event, { chain: 'Sepolia Testnet' });
-      updatedEvent.txnLink = `https://sepolia.etherscan.io/tx/${event.txnHash}`;
-      eventsArray.push(updatedEvent);
-    });
-  
-    /*autopayDivaMumbaiData.data.feeRecipients.forEach((event) => {
-      event.chain = 'Diva Polygon Mainnet'
-      event.txnLink = `https://polygonscan.com/tx/${event.txnHash}`
-      eventsArray.push(event)
-    })
-
-    autopayDivaAdaptorMumbaiData.data.tipAddeds.forEach((event) => {
-      const updatedEvent = Object.assign({}, event, { chain: 'Diva Polygon Mainnet' });
-      updatedEvent.txnLink = `https://app.diva.finance/markets`;
-      });
-      */
-    
-    let sorted = sortDataByProperty('_startTime', eventsArray)
-    setAllGraphData(sorted)
+    const interval = window.setInterval(fetchNewReports, 5000)
 
     return () => {
       setAllGraphData(null)
+      window.clearInterval(interval)
     }
-  }, [ autopayPulsechainData, autopayAmoyData, autopayMainnetData, autopaySepoliaData])
-
+  }, [])
 
   useEffect(() => {
     if (!allGraphData) return
@@ -205,7 +76,6 @@ const GraphAutopay = ({ children }) => {
       setDecodedData(null)
     }
   }, [allGraphData])
-
 
   const GraphContextObj = {
     decodedData: decodedData,
