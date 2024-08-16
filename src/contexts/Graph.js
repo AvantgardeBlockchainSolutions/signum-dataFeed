@@ -10,7 +10,9 @@ const Graph = ({ children }) => {
   useEffect(() => {
     const fetchNewReports = async () => {
       try {
-        const res = await fetch(`http://localhost:3001/new-report`)
+        const res = await fetch(`https://pug-proud-allegedly.ngrok-free.app/new-report`, {
+          headers: new Headers({"ngrok-skip-browser-warning": "69420",
+          }),})
         const data = await res.json()
 
         const sorted = sortDataByProperty(

@@ -12,7 +12,9 @@ const GraphAutopay = ({ children }) => {
   useEffect(() => {
     const fetchNewReports = async () => {
       try {
-        const res = await fetch(`http://localhost:3001/tip-added`)
+        const res = await fetch(`https://pug-proud-allegedly.ngrok-free.app/tip-added`,{
+          headers: new Headers({"ngrok-skip-browser-warning": "69420",
+          }),})
         const data = await res.json()
 
         const sorted = sortDataByProperty(
