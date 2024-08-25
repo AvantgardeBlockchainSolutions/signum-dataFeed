@@ -6,7 +6,7 @@ const web3 = new Web3(window.ethereum)
 
 const BN = require('bn.js')
 
-const tellorAddressPulsechain = '0x113c82608A84bD47eE90a7A498b2663f3A7B977C'
+const tellorAddressPulsechain = '0x410a1Cb708e0724d1f9013EE31945E5E3F978a44'
 
 const getDate = (timestamp) => {
   const months = {
