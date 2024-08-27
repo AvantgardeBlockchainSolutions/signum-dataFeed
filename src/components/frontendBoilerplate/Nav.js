@@ -1,7 +1,9 @@
 import React, { useContext } from 'react'
 //Assets
-import { ReactComponent as Tellor } from '../../assets/signum_logo.svg'
-import { ReactComponent as TellorDark } from '../../assets/signum_logo.svg'
+import signumLogo from '../../assets/signum_logo.png';
+import signumLogoDark from '../../assets/signum_logo.png';
+import { ReactComponent as Tellor } from '../../assets/signum_logo.png'
+import { ReactComponent as TellorDark } from '../../assets/signum_logo.png'
 //Components
 //import WalletConnect from "./WalletConnect";
 //Styles
@@ -19,9 +21,9 @@ function Nav() {
         rel="noopener noreferrer"
       >
         {mode && mode.mode === 'dark' ? (
-          <Tellor className="TellorLogo" />
+          <img className="TellorLogo" style={{width: "100px"}} src={signumLogo} alt="Signum Logo" />
         ) : (
-          <TellorDark className="TellorLogo" />
+          <img className="TellorLogo" style={{width: "100px"}} src={signumLogo} alt="Signum Logo" />
         )}
       </a>
       {/* <WalletConnect /> */}
