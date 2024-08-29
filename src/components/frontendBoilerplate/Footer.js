@@ -25,7 +25,7 @@ function Footer() {
 
   return (
     <div className="Footer">
-      <p className="FooterText">&copy; 2024 Signum, Inc.</p>
+      <p className="FooterText">&copy; 2024 SIGNUM</p>
       <div className="ModeSwitcher">
         <p className="ModeSwitcherText">
           {mode && mode.mode === 'dark'

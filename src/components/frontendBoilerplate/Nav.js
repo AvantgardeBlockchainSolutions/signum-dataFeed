@@ -21,9 +21,9 @@ function Nav() {
         rel="noopener noreferrer"
       >
         {mode && mode.mode === 'dark' ? (
-          <img className="TellorLogo" style={{width: "100px"}} src={signumLogo} alt="Signum Logo" />
+          <img className="TellorLogo" style={{width: "50px"}} src={signumLogo} alt="Signum Logo" />
         ) : (
-          <img className="TellorLogo" style={{width: "100px"}} src={signumLogo} alt="Signum Logo" />
+          <img className="TellorLogo" style={{width: "50px"}} src={signumLogo} alt="Signum Logo" />
         )}
       </a>
       {/* <WalletConnect /> */}
