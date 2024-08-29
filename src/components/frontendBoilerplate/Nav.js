@@ -26,6 +26,7 @@ function Nav() {
           <img className="TellorLogo" style={{width: "50px"}} src={signumLogo} alt="Signum Logo" />
         )}
       </a>
+      <p style={{ color: "#fbc51b", textDecoration: "underline" }}>TEST NETWORK</p>
       {/* <WalletConnect /> */}
     </div>
   )
