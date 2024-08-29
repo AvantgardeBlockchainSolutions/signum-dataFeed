@@ -26,20 +26,6 @@ function Footer() {
   return (
     <div className="Footer">
       <p className="FooterText">&copy; 2024 SIGNUM</p>
-      <div className="ModeSwitcher">
-        <p className="ModeSwitcherText">
-          {mode && mode.mode === 'dark'
-            ? 'Switch to Light Mode'
-            : 'Switch to Dark Mode'}
-        </p>
-        <ThemeProvider theme={theme}>
-          <CustomSwitch
-            {...label}
-            checked={mode && mode.mode === 'dark' ? true : false}
-            onClick={mode.changeMode}
-          />
-        </ThemeProvider>
-      </div>
     </div>
   )
 }
