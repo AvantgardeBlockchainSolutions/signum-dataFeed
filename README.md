@@ -28,7 +28,7 @@
 <!-- PROJECT LOGO -->
 <br />
 <p align="center">
-  <a href="https://github.com/AvantgardeBlockchainSolutions/signum-dataFeed">
+  <a href="https://github.com/SignumOracle/signum-dataFeed">
     <img src="/public/favicon.jpg" alt="Logo" width="80" height="80">
   </a>
 
@@ -38,9 +38,9 @@
     The Signum Data Feed gathers the reporter activity on every supported chain to show the aliveness of the Signum Oracle! 
     <br />
     <br />
-    <a href="https://github.com/AvantgardeBlockchainSolutions/signum-dataFeed/issues">Report Bug</a>
+    <a href="https://github.com/SignumOracle/signum-dataFeed/issues">Report Bug</a>
     ·
-    <a href="https://github.com/AvantgardeBlockchainSolutions/signum-dataFeed/issues">Request Feature</a>
+    <a href="https://github.com/SignumOracle/signum-dataFeed/issues">Request Feature</a>
   </p>
 </p>
 
@@ -109,7 +109,7 @@ To get a local copy up and running follow these simple steps.
 
 1. Clone the repo in your preferred directory
    ```sh
-   git clone https://github.com/AvantgardeBlockchainSolutions/signum-dataFeed.git
+   git clone https://github.com/SignumOracle/signum-dataFeed.git
    ```
 2. Install NPM packages
    ```sh
@@ -132,7 +132,7 @@ To get a local copy up and running follow these simple steps.
 
 ## Roadmap
 
-See the [open issues](https://github.com/AvantgardeBlockchainSolutions/signum-signum-dataFeed/issues) for a list of proposed features (and known issues).
+See the [open issues](https://github.com/SignumOracle/signum-signum-dataFeed/issues) for a list of proposed features (and known issues).
 
 <!-- CONTRIBUTING -->
 
@@ -167,14 +167,14 @@ Signum.win
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
 
-[contributors-shield]: https://img.shields.io/github/contributors/AvantgardeBlockchainSolutions/signum-dataFeed.svg?style=for-the-badge
-[contributors-url]: https://github.com/AvantgardeBlockchainSolutions/signum-dataFeed/graphs/contributors
-[forks-shield]: https://img.shields.io/github/forks/AvantgardeBlockchainSolutions/signum-dataFeed.svg?style=for-the-badge
-[forks-url]: https://github.com/AvantgardeBlockchainSolutions/signum-dataFeed/network/members
-[stars-shield]: https://img.shields.io/github/stars/AvantgardeBlockchainSolutions/signum-dataFeed.svg?style=for-the-badge
-[stars-url]: https://github.com/AvantgardeBlockchainSolutions/signum-dataFeed/stargazers
-[issues-shield]: https://img.shields.io/github/issues/AvantgardeBlockchainSolutions/signum-dataFeed.svg?style=for-the-badge
-[issues-url]: https://github.com/AvantgardeBlockchainSolutions/signum-dataFeed/issues
-[license-shield]: https://img.shields.io/github/license/AvantgardeBlockchainSolutions/signum-dataFeed.svg?style=for-the-badge
-[license-url]: https://github.com/AvantgardeBlockchainSolutions/signum-dataFeed/blob/main/LICENSE.txt
+[contributors-shield]: https://img.shields.io/github/contributors/SignumOracle/signum-dataFeed.svg?style=for-the-badge
+[contributors-url]: https://github.com/SignumOracle/signum-dataFeed/graphs/contributors
+[forks-shield]: https://img.shields.io/github/forks/SignumOracle/signum-dataFeed.svg?style=for-the-badge
+[forks-url]: https://github.com/SignumOracle/signum-dataFeed/network/members
+[stars-shield]: https://img.shields.io/github/stars/SignumOracle/signum-dataFeed.svg?style=for-the-badge
+[stars-url]: https://github.com/SignumOracle/signum-dataFeed/stargazers
+[issues-shield]: https://img.shields.io/github/issues/SignumOracle/signum-dataFeed.svg?style=for-the-badge
+[issues-url]: https://github.com/SignumOracle/signum-dataFeed/issues
+[license-shield]: https://img.shields.io/github/license/SignumOracle/signum-dataFeed.svg?style=for-the-badge
+[license-url]: https://github.com/SignumOracle/signum-dataFeed/blob/main/LICENSE.txt
 [screenshot]: https://user-images.githubusercontent.com/21370350/165868096-5e8a5a6e-b010-4c62-a99d-6e1b8261fa96.png
