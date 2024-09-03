@@ -53,7 +53,7 @@ function WalletConnect() {
             title={
                 user.currentUser.balances 
                 ? 
-                `Your SRB Balance: ${user.currentUser.balances.trb}` 
+                `Your STT Balance: ${user.currentUser.balances.trb}` 
                 : 
                 "To switch accounts or networks, use Metamask extension."
               }
