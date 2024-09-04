@@ -41,6 +41,8 @@ function AllFeeds() {
   const handleLoadMore = () => {
     if (!loadMoreButton) return // If the button is disabled, do nothing
 
+    graphData.pauseInterval();
+
     const newLoadMoreClicks = loadMoreClicks + 1
     setLoadMoreClicks(newLoadMoreClicks) // Increment the number of times the button has been clicked
 

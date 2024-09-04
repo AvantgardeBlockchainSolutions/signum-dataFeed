@@ -6,18 +6,22 @@ export const GraphContext = createContext()
 const Graph = ({ children }) => {
   const [allGraphData, setAllGraphData] = useState(null)
   const [decodedData, setDecodedData] = useState(null)
+  const [isPaused, setIsPaused] = useState(false);
 
   useEffect(() => {
-    const interval = window.setInterval(async () => {
-      const newReports = await fetchNewReports()
-      setAllGraphData(newReports)
-    }, 5000)
+    let interval = null;
+    if (!isPaused) {
+      interval = window.setInterval(async () => {
+        const newReports = await fetchNewReports()
+        setAllGraphData(newReports)
+      }, 5000)
+    }
 
     return () => {
       setAllGraphData(null)
-      window.clearInterval(interval)
+      if (interval) window.clearInterval(interval)
     }
-  }, [])
+  }, [isPaused])
 
   //Graph Querying every 5 seconds
 
@@ -32,6 +36,7 @@ const Graph = ({ children }) => {
 
   const GraphContextObj = {
     decodedData: decodedData,
+    pauseInterval: () => setIsPaused(true)
   }
 
   return (
