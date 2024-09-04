@@ -2,6 +2,7 @@ import React, { useContext } from 'react'
 
 import '../styles/Hero.css'
 //Components
+import { ReactComponent as FilterIcon } from '../assets/filter_outline.svg'
 import AllFeeds from '../components/AllFeeds.js'
 import AllTips from './AllTips'
 //Contexts
@@ -56,6 +57,7 @@ function Hero() {
             </div>
             <div className="HeroSection">
               <h2 style={{marginTop: '1em'}}>Recent Reports</h2>
+              <p style={{marginTop: '1em', fontSize: '12px'}}>Click <FilterIcon style={{width: '15px', marginBottom: '-7px'}} /> for Filters</p>
               <AllFeeds />
               <h2 style={{marginTop: '2em'}}>Tips</h2>
               <AllTips />
