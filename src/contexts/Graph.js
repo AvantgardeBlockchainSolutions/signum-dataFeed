@@ -1,5 +1,5 @@
 import React, { useState, createContext, useEffect } from 'react'
-import { decodingMiddleware, sortDataByProperty } from '../utils/helpers'
+import { decodingMiddleware, fetchNewReports } from '../utils/helpers'
 
 export const GraphContext = createContext()
 
@@ -8,30 +8,10 @@ const Graph = ({ children }) => {
   const [decodedData, setDecodedData] = useState(null)
 
   useEffect(() => {
-    const fetchNewReports = async () => {
-      try {
-        const res = await fetch(`https://pug-proud-allegedly.ngrok-free.app/new-report`, {
-          headers: new Headers({"ngrok-skip-browser-warning": "69420",
-          }),})
-        const data = await res.json()
-
-        const sorted = sortDataByProperty(
-          '_time',
-          data.map((event) => {
-            const updatedEvent = Object.assign({}, event, {
-              chain: 'Pulsechain',
-            })
-            updatedEvent.txnLink = `https://scan.9mm.pro/tx/${event.txnHash}`
-            return updatedEvent
-          })
-        )
-
-        setAllGraphData(sorted)
-      } catch (e) {
-        console.log(e)
-      }
-    }
-    const interval = window.setInterval(fetchNewReports, 5000)
+    const interval = window.setInterval(async () => {
+      const newReports = await fetchNewReports()
+      setAllGraphData(newReports)
+    }, 5000)
 
     return () => {
       setAllGraphData(null)

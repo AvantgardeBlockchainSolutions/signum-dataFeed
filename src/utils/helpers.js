@@ -462,3 +462,28 @@ export const decodingMiddleware = (reportEvents) => {
 
   return decoded // Or return filteredDecoded if you filtered the list
 }
+
+export const fetchNewReports = async () => {
+  try {
+    const res = await fetch(`https://pug-proud-allegedly.ngrok-free.app/new-report`, {
+      headers: new Headers({"ngrok-skip-browser-warning": "69420",
+      }),})
+    const data = await res.json()
+
+    const sorted = sortDataByProperty(
+      '_time',
+      data.map((event) => {
+        const updatedEvent = Object.assign({}, event, {
+          chain: 'Pulsechain',
+        })
+        updatedEvent.txnLink = `https://scan.9mm.pro/tx/${event.txnHash}`
+        return updatedEvent
+      })
+    )
+
+    return sorted;
+  } catch (e) {
+    console.log(e)
+    return null;
+  }
+}
