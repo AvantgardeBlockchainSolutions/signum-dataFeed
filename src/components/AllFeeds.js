@@ -8,9 +8,6 @@ import { ModeContext } from '../contexts/Mode'
 import LinearIndeterminate from './LinearIndeterminate'
 
 function AllFeeds() {
-  //Context State
-  const graphData = useContext(GraphContext)
-  const mode = useContext(ModeContext)
   //Component State
   const [clippedData, setClippedData] = useState([])
   const [loadMoreClicks, setLoadMoreClicks] = useState(1)
@@ -18,6 +15,10 @@ function AllFeeds() {
   const [loadMoreButton, setLoadMoreButton] = useState(true)
   const [filtering, setFiltering] = useState(false)
 
+  //Context State
+  const graphData = useContext(GraphContext)
+  const mode = useContext(ModeContext)
+  
   useEffect(() => {
     if (!graphData.decodedData) return
     const newData = graphData.decodedData.slice(0, 50)
@@ -31,32 +32,24 @@ function AllFeeds() {
 
   useEffect(() => {
     if (!clippedData) return
-    setViewing(clippedData.slice(0, 6))
+    setViewing(clippedData.slice(0, Math.min(6 * loadMoreClicks, clippedData.length) ))
 
     return () => {
       setViewing(null)
     }
-  }, [clippedData]) //eslint-disable-line
+  }, [clippedData, loadMoreClicks]) //eslint-disable-line
 
   const handleLoadMore = () => {
     if (!loadMoreButton) return // If the button is disabled, do nothing
-
-    graphData.pauseInterval();
 
     const newLoadMoreClicks = loadMoreClicks + 1
     setLoadMoreClicks(newLoadMoreClicks) // Increment the number of times the button has been clicked
 
     const totalItems = clippedData.length // Total items available
-    const itemsPerLoad = 6 // Number of items to load per click, adjust as needed
-    const newLoadAmount = itemsPerLoad * newLoadMoreClicks // Calculate new amount of items to display
+    const newLoadAmount = 6 * newLoadMoreClicks // Calculate new amount of items to display
 
     if (newLoadAmount >= totalItems) {
-      // If the new load amount is greater than or equal to total items, show all items and disable the button
-      setViewing(clippedData)
       setLoadMoreButton(false) // Disable the "load more" button as all items are now displayed
-    } else {
-      // If not all items are displayed, update the viewing state with the new slice of data
-      setViewing(clippedData.slice(0, newLoadAmount))
     }
   }
 

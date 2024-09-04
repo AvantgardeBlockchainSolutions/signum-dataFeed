@@ -241,8 +241,8 @@ function Table({ data, allData, setFiltering }) {
     // If filters are applied, show all matching data, otherwise limit to first 6 items
     if (areFiltersApplied) {
       setTableData(filteredData) // Show all filtered items
-    } else {
-      setTableData(filteredData.slice(0, 6)) // Limit to first 6 items for initial load
+    // } else {
+    //   setTableData(filteredData.slice(0, 6)) // Limit to first 6 items for initial load
     }
 
     setFiltering(filteredData.length > 0)
